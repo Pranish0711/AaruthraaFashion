@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+}
+
+enum RequestStatus {
+  NEW
+  CONTACTED
+  QUOTATION_SENT
+  DESIGN_DISCUSSION
+  CONFIRMED
+  PRODUCTION
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         UserRole @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  notes        AdminNote[]
+}
+
+model Category {
+  id           String     @id @default(cuid())
+  name         String
+  slug         String     @unique
+  description  String?
+  imageUrl     String?
+  displayOrder Int        @default(0)
+  parentId     String?
+  parent       Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children     Category[] @relation("CategoryHierarchy")
+  products     Product[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([parentId])
+  @@index([displayOrder])
+}
+
+model Product {
+  id                     String         @id @default(cuid())
+  name                   String
+  slug                   String         @unique
+  shortDescription       String
+  fullDescription        String         @db.Text
+  categoryId             String
+  category               Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  subcategory            String?
+  productType            String
+  startingPrice          Float?
+  moq                    Int            @default(100)
+  fabrics                Json           @default("[]")
+  gsmOptions             Json           @default("[]")
+  colors                 Json           @default("[]")
+  sizes                  Json           @default("[]")
+  customizationAvailable Boolean        @default(true)
+  customizationOptions   Json           @default("[]")
+  featured               Boolean        @default(false)
+  active                 Boolean        @default(true)
+  images                 ProductImage[]
+  customizationRequests  CustomizationRequest[]
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+
+  @@index([categoryId])
+  @@index([active])
+  @@index([featured])
+}
+
+model ProductImage {
+  id                 String  @id @default(cuid())
+  productId          String
+  product            Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url                String
+  cloudinaryPublicId String?
+  displayOrder       Int     @default(0)
+  isPrimary          Boolean @default(false)
+
+  @@index([productId])
+}
+
+model Customer {
+  id                    String                 @id @default(cuid())
+  name                  String
+  organization          String?
+  phone                 String
+  email                 String
+  city                  String?
+  state                 String?
+  customizationRequests CustomizationRequest[]
+  quoteRequests         QuoteRequest[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  @@index([email])
+  @@index([phone])
+}
+
+model CustomizationRequest {
+  id                    String              @id @default(cuid())
+  customerId            String
+  customer              Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId             String?
+  product               Product?            @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName           String
+  quantityRange         String
+  expectedDeliveryDate  DateTime?
+  fabricPreference      String?
+  gsmPreference         String?
+  colorPreference       String?
+  sizeRange             String?
+  logoRequired          Boolean             @default(false)
+  frontPrinting         Boolean             @default(false)
+  backPrinting          Boolean             @default(false)
+  sleevePrinting        Boolean             @default(false)
+  embroidery            Boolean             @default(false)
+  dtfPrinting           Boolean             @default(false)
+  screenPrinting        Boolean             @default(false)
+  playerName            Boolean             @default(false)
+  playerNumber          Boolean             @default(false)
+  additionalRequirements String?            @db.Text
+  status                RequestStatus       @default(NEW)
+  internalNotes         String?             @db.Text
+  files                 CustomizationFile[]
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@index([status])
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model CustomizationFile {
+  id                 String               @id @default(cuid())
+  requestId          String
+  request            CustomizationRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  url                String
+  filename           String
+  cloudinaryPublicId String?
+  fileType           String?
+  createdAt          DateTime             @default(now())
+
+  @@index([requestId])
+}
+
+model QuoteRequest {
+  id                       String        @id @default(cuid())
+  customerId               String
+  customer                 Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productCategory          String
+  productType              String?
+  quantity                 String
+  customizationRequirement String?       @db.Text
+  deliveryLocation         String?
+  expectedDeliveryDate     DateTime?
+  additionalNotes          String?       @db.Text
+  status                   RequestStatus @default(NEW)
+  internalNotes            String?       @db.Text
+  files                    QuoteFile[]
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+
+  @@index([status])
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model QuoteFile {
+  id                 String       @id @default(cuid())
+  requestId          String
+  request            QuoteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  url                String
+  filename           String
+  cloudinaryPublicId String?
+  fileType           String?
+  createdAt          DateTime     @default(now())
+
+  @@index([requestId])
+}
+
+model ContactSubmission {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String        @db.Text
+  status    RequestStatus @default(NEW)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SiteSettings {
+  id               String   @id @default("default")
+  businessName     String   @default("AaruthraaFashion")
+  businessEmail    String   @default("info@aaruthraafashion.in")
+  whatsappNumber   String   @default("919876543210")
+  contactNumber    String?
+  address          String?
+  businessHours    String?
+  instagramUrl     String?
+  facebookUrl      String?
+  logoUrl          String?
+  announcementText String   @default("WHOLESALE & BULK ORDERS | CUSTOM APPAREL | MOQ FROM 100 PCS")
+  faqSamplesAnswer String   @default("Yes, sample units can be arranged for bulk orders subject to product type and customization requirements. Contact us for details.")
+  updatedAt        DateTime @updatedAt
+}
+
+model AdminNote {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  content    String   @db.Text
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+}

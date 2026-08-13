@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AaruthraaFashion — B2B Wholesale Apparel Platform
+
+Premium wholesale and custom apparel website built with Next.js, PostgreSQL (Neon), Prisma, NextAuth, and Cloudinary.
+
+## Features
+
+- Public marketing site with product catalogue, customization flow, and bulk quote requests
+- WhatsApp integration with context-aware pre-filled messages
+- Admin dashboard with product, category, enquiry, and customer management
+- Cloudinary image uploads for products and customer design files
+- Secure admin authentication with bcrypt-hashed passwords
+
+## Tech Stack
+
+- **Next.js 16** (App Router) + TypeScript
+- **Tailwind CSS** + Radix UI components
+- **Framer Motion** animations
+- **Neon PostgreSQL** + Prisma ORM
+- **NextAuth.js v5** (Credentials provider)
+- **Cloudinary** for image storage
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment
+
+Copy `.env.example` to `.env` and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | Neon PostgreSQL connection string |
+| `AUTH_SECRET` | Random secret (32+ chars). Generate: `openssl rand -base64 32` |
+| `ADMIN_EMAIL` | Initial admin email (used during seed) |
+| `ADMIN_PASSWORD` | Initial admin password (hashed in DB during seed) |
+| `WHATSAPP_NUMBER` | E.164 without + (e.g. `919876543210`) |
+| `CLOUDINARY_*` | Cloudinary credentials for image uploads |
+| `NEXT_PUBLIC_SITE_URL` | Site URL for SEO metadata |
+
+### 3. Set up Neon database
+
+1. Create a free database at [neon.tech](https://neon.tech)
+2. Copy the connection string to `DATABASE_URL` in `.env`
+
+### 4. Push schema and seed
+
+```bash
+npm run db:push
+npm run db:seed
+```
+
+This creates the admin user, categories, 12 sample products, and site settings.
+
+### 5. Run development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Website:** http://localhost:3000
+- **Admin:** http://localhost:3000/admin/login
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Default admin credentials (from `.env`):
+- Email: `admin@aaruthraafashion.in`
+- Password: `admin@aaruthraafashion`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Change the password in Admin → Settings after first login.
 
-## Learn More
+## Deploy to Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push to GitHub
+2. Import project in [Vercel](https://vercel.com)
+3. Add all environment variables from `.env.example`
+4. Deploy — Vercel runs `prisma generate` via postinstall
+5. Run `npm run db:push && npm run db:seed` against your production Neon DB once
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/
+│   ├── (public)/          # Marketing pages
+│   ├── admin/             # Admin dashboard
+│   └── api/auth/          # NextAuth routes
+├── actions/               # Server actions
+├── components/
+│   ├── admin/
+│   ├── forms/
+│   ├── public/
+│   └── ui/
+└── lib/                   # Utilities, auth, prisma, cloudinary
+prisma/
+├── schema.prisma
+└── seed.ts
+```
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command | Description |
+|---|---|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run db:push` | Push schema to database |
+| `npm run db:seed` | Seed sample data |
+| `npm run db:studio` | Open Prisma Studio |
