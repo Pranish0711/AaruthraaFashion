@@ -17,7 +17,7 @@ export async function getSiteSettings() {
       businessEmail: "info@aaruthraafashion.in",
       whatsappNumber: process.env.WHATSAPP_NUMBER ?? "917871317044",
       contactNumber: "+91 78713 17044",
-      address: "Chennai, Tamil Nadu, India",
+      address: "Erode, Tamil Nadu, India",
       businessHours: "Mon–Sat, 9:00 AM – 6:00 PM IST",
       instagramUrl: null,
       facebookUrl: null,

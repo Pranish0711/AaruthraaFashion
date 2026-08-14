@@ -1,33 +1,56 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { getSiteSettings } from "@/lib/db-helpers";
+import { getCachedFeaturedProducts, getCachedSiteSettings, getCachedTopCategories } from "@/lib/data";
+import { resolveCategoryImage, SITE_IMAGES, isPlaceholderImage } from "@/lib/site-images";
+import { SEO_KEYWORDS, SITE } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { CategoryCard } from "@/components/public/category-card";
 import { ProductCard } from "@/components/public/product-card";
-import { FadeIn, SectionHeading } from "@/components/public/motion";
+import { HeroSection } from "@/components/public/hero-section";
+import { DesignCtaSection } from "@/components/public/design-cta";
+import { SectionHeading } from "@/components/public/motion";
 import { FAQAccordion } from "@/components/public/faq-accordion";
 
-export default async function HomePage() {
-  const settings = await getSiteSettings();
+export const revalidate = 120;
 
-  let featuredProducts: Awaited<ReturnType<typeof prisma.product.findMany>> = [];
-  let categories: Awaited<ReturnType<typeof prisma.category.findMany>> = [];
+export const metadata: Metadata = {
+  title: "Wholesale & Custom Apparel Manufacturer in Erode, Tamil Nadu",
+  description:
+    "AaruthraaFashion — wholesale t-shirts, track pants & custom sportswear from Erode, Tamil Nadu. Bulk orders from MOQ 100 pcs. Custom printing from ₹99. Pan India delivery.",
+  keywords: [...SEO_KEYWORDS],
+  openGraph: {
+    title: "AaruthraaFashion | Wholesale Custom Apparel Erode",
+    description: "Bulk custom t-shirts, track pants & team apparel from Erode, Tamil Nadu. MOQ 100 pcs.",
+    locale: "en_IN",
+    type: "website",
+    siteName: SITE.name,
+  },
+  alternates: {
+    canonical: SITE.url,
+  },
+  other: {
+    "geo.region": "IN-TN",
+    "geo.placename": "Erode",
+  },
+};
+
+export default async function HomePage() {
+  let settings;
+  let featuredProducts: Awaited<ReturnType<typeof getCachedFeaturedProducts>> = [];
+  let categories: Awaited<ReturnType<typeof getCachedTopCategories>> = [];
 
   try {
-    [featuredProducts, categories] = await Promise.all([
-      prisma.product.findMany({
-        where: { featured: true, active: true },
-        include: { category: true, images: { orderBy: { displayOrder: "asc" }, take: 1 } },
-        take: 4,
-      }),
-      prisma.category.findMany({
-        where: { parentId: null },
-        orderBy: { displayOrder: "asc" },
-        take: 3,
-      }),
+    [settings, featuredProducts, categories] = await Promise.all([
+      getCachedSiteSettings(),
+      getCachedFeaturedProducts(),
+      getCachedTopCategories(),
     ]);
   } catch (error) {
     console.error("Failed to load homepage data:", error);
+    settings = {
+      faqSamplesAnswer:
+        "Yes, sample units can be arranged for bulk orders subject to product type and customization requirements.",
+    };
   }
 
   const faqItems = [
@@ -41,15 +64,15 @@ export default async function HomePage() {
     },
     {
       question: "Can you create a completely new design?",
-      answer: "Yes. Customers can share their requirements, logos or reference images and request a custom product.",
+      answer: "Yes. Share your logo, reference images or describe your idea — we help you make your own design for bulk production.",
     },
     {
       question: "Do you provide samples?",
-      answer: settings.faqSamplesAnswer,
+      answer: settings?.faqSamplesAnswer ?? "Contact us for sample options on bulk orders.",
     },
     {
       question: "Do you deliver across India?",
-      answer: "Yes, Pan India delivery is available subject to location and order requirements.",
+      answer: "Yes. We are based in Erode, Tamil Nadu and deliver Pan India subject to order requirements.",
     },
     {
       question: "How do I get pricing?",
@@ -60,14 +83,14 @@ export default async function HomePage() {
   const whyUs = [
     "Wholesale pricing",
     "MOQ from 100 pieces",
-    "Custom printing",
+    "Make your own design",
     "Multiple fabric options",
-    "Corporate and institutional orders",
+    "Corporate & institutional orders",
     "Custom branding",
     "Flexible bulk quantities",
     "Professional design support",
     "Pan India delivery",
-    "Dedicated order assistance",
+    "Based in Erode, TN",
   ];
 
   const steps = [
@@ -80,34 +103,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative flex min-h-[90vh] items-end bg-foreground text-background">
-        <div className="absolute inset-0 bg-[url('/images/placeholders/track-pants.svg')] bg-cover bg-center opacity-20" />
-        <div className="container-wide relative section-padding w-full">
-          <FadeIn>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">Wholesale Apparel</p>
-            <h1 className="mt-4 max-w-4xl font-display text-5xl font-bold uppercase leading-[0.95] md:text-7xl lg:text-8xl">
-              Your Team. Your Brand. Your Apparel.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg text-neutral-300">
-              Premium wholesale apparel and custom clothing for businesses, colleges, sports teams, events and organizations.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button asChild variant="accent" size="lg">
-                <Link href="/bulk-quote">Get Bulk Quote</Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="border-background text-background hover:bg-background hover:text-foreground">
-                <Link href="/products">Explore Products</Link>
-              </Button>
-            </div>
-            <div className="mt-12 flex flex-wrap gap-6 text-xs font-semibold uppercase tracking-wider text-neutral-400 md:gap-10">
-              <span>MOQ From 100 Pcs</span>
-              <span>Custom Printing</span>
-              <span>Wholesale Pricing</span>
-              <span>Pan India Delivery</span>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
+      <HeroSection />
 
       <section className="section-padding">
         <div className="container-wide grid gap-6 lg:grid-cols-3">
@@ -117,7 +113,8 @@ export default async function HomePage() {
             description="Sportswear, cotton homewear and fully customizable track pants for teams and organizations."
             href="/products?category=track-pants"
             buttonText="Explore Track Pants"
-            imageUrl={categories.find((c) => c.slug === "track-pants")?.imageUrl}
+            imageUrl={resolveCategoryImage("track-pants", categories.find((c) => c.slug === "track-pants")?.imageUrl)}
+            priority
           />
           <CategoryCard
             title="Shorts"
@@ -125,7 +122,7 @@ export default async function HomePage() {
             description="Wholesale sports and cotton shorts for teams, events and organizations."
             href="/products?category=shorts"
             buttonText="Explore Shorts"
-            imageUrl={categories.find((c) => c.slug === "shorts")?.imageUrl}
+            imageUrl={resolveCategoryImage("shorts", categories.find((c) => c.slug === "shorts")?.imageUrl)}
           />
           <CategoryCard
             title="Custom T-Shirts"
@@ -133,19 +130,21 @@ export default async function HomePage() {
             description="Corporate, college, sports and event t-shirts with full customization."
             href="/customize"
             buttonText="Customize Your Order"
-            imageUrl={categories.find((c) => c.slug === "t-shirts")?.imageUrl}
+            imageUrl={resolveCategoryImage("t-shirts", categories.find((c) => c.slug === "t-shirts")?.imageUrl)}
             priceTag="Starting From ₹99*"
             moqTag="MOQ From 100 Pieces"
           />
         </div>
       </section>
 
+      <DesignCtaSection />
+
       <section className="bg-foreground py-20 text-background md:py-28">
-        <div className="container-wide px-4 text-center md:px-8">
+        <div className="container-wide px-4 text-center md:px-8 animate-fade-up">
           <h2 className="font-display text-5xl font-bold uppercase md:text-7xl lg:text-8xl">Custom T-Shirts</h2>
           <p className="font-display text-4xl font-bold uppercase text-accent md:text-6xl">Starting From ₹99*</p>
           <p className="mx-auto mt-6 max-w-2xl text-neutral-300">
-            Designed for companies, colleges, sports teams, events and large group orders.
+            Designed for companies, colleges, sports teams, events and large group orders from Erode to anywhere in India.
           </p>
           <Button asChild variant="accent" size="lg" className="mt-8">
             <Link href="/bulk-quote">Request Custom Quote</Link>
@@ -162,7 +161,16 @@ export default async function HomePage() {
             <SectionHeading title="Featured Products" subtitle="Sample designs available for full customization." />
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={{
+                    ...product,
+                    images: product.images.map((img) => ({
+                      ...img,
+                      url: isPlaceholderImage(img.url) ? SITE_IMAGES.tShirts : img.url,
+                    })),
+                  }}
+                />
               ))}
             </div>
           </div>
@@ -171,7 +179,7 @@ export default async function HomePage() {
 
       <section className="section-padding bg-muted/30">
         <div className="container-wide">
-          <SectionHeading title="Why AaruthraaFashion" />
+          <SectionHeading title="Why AaruthraaFashion" subtitle={`Trusted wholesale apparel partner in ${SITE.location}.`} />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {whyUs.map((item) => (
               <div key={item} className="border border-border bg-card p-5">

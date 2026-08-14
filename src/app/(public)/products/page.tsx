@@ -5,9 +5,14 @@ import { SectionHeading } from "@/components/public/motion";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+import { SEO_KEYWORDS, SITE } from "@/lib/seo";
+
+export const revalidate = 120;
+
 export const metadata: Metadata = {
-  title: "Products",
-  description: "Browse wholesale track pants, shorts and custom t-shirts. Sample designs available for bulk customization. MOQ from 100 pcs.",
+  title: "Wholesale Products — T-Shirts, Track Pants & Shorts",
+  description: `Browse wholesale track pants, shorts and custom t-shirts from ${SITE.location}. Bulk customization from MOQ 100 pcs.`,
+  keywords: [...SEO_KEYWORDS],
 };
 
 export default async function ProductsPage({

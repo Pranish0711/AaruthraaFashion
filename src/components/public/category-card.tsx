@@ -11,6 +11,7 @@ type CategoryCardProps = {
   imageUrl?: string | null;
   priceTag?: string;
   moqTag?: string;
+  priority?: boolean;
 };
 
 export function CategoryCard({
@@ -22,6 +23,7 @@ export function CategoryCard({
   imageUrl,
   priceTag,
   moqTag,
+  priority = false,
 }: CategoryCardProps) {
   return (
     <div className="group relative min-h-[480px] overflow-hidden border border-border bg-foreground text-background md:min-h-[560px]">
@@ -30,8 +32,9 @@ export function CategoryCard({
           src={imageUrl}
           alt={title}
           fill
-          className="object-cover opacity-40 transition-transform duration-700 group-hover:scale-105"
-          sizes="100vw"
+          priority={priority}
+          className="object-cover opacity-50 transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 1024px) 100vw, 33vw"
         />
       )}
       <div className="relative flex h-full flex-col justify-end p-8 md:p-12">

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { getSiteSettings } from "@/lib/db-helpers";
+import { getCachedSiteSettings } from "@/lib/data";
+import { SITE } from "@/lib/seo";
 
 export async function Footer() {
-  const settings = await getSiteSettings();
+  const settings = await getCachedSiteSettings();
 
   return (
     <footer className="border-t border-border bg-foreground text-background">
@@ -10,7 +11,7 @@ export async function Footer() {
         <div>
           <h3 className="font-display text-2xl font-bold uppercase tracking-wider">AaruthraaFashion</h3>
           <p className="mt-4 text-sm text-neutral-400">
-            Premium wholesale apparel and custom clothing for businesses, colleges, sports teams and organizations.
+            Premium wholesale apparel and custom clothing from {SITE.location}. Serving businesses, colleges, sports teams and organizations across India.
           </p>
         </div>
         <div>

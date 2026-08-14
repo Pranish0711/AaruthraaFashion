@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
+import { isPlaceholderImage, SITE_IMAGES } from "@/lib/site-images";
 
 type ProductCardProps = {
   product: {
@@ -19,7 +20,8 @@ type ProductCardProps = {
 };
 
 export function ProductCard({ product }: ProductCardProps) {
-  const imageUrl = product.images?.[0]?.url ?? "/images/placeholders/default.svg";
+  const rawUrl = product.images?.[0]?.url;
+  const imageUrl = rawUrl && !isPlaceholderImage(rawUrl) ? rawUrl : SITE_IMAGES.tShirts;
 
   return (
     <article className="group flex flex-col border border-border bg-card transition-shadow hover:shadow-lg">

@@ -25,14 +25,16 @@ async function main() {
 
   await prisma.siteSettings.upsert({
     where: { id: "default" },
-    update: {},
+    update: {
+      address: "Erode, Tamil Nadu, India",
+    },
     create: {
       id: "default",
       businessName: "AaruthraaFashion",
       businessEmail: "info@aaruthraafashion.in",
       whatsappNumber: process.env.WHATSAPP_NUMBER ?? "917871317044",
       contactNumber: "+91 78713 17044",
-      address: "Chennai, Tamil Nadu, India",
+      address: "Erode, Tamil Nadu, India",
       businessHours: "Mon–Sat, 9:00 AM – 6:00 PM IST",
       announcementText: "WHOLESALE & BULK ORDERS | CUSTOM APPAREL | MOQ FROM 100 PCS",
     },
