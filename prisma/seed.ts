@@ -30,7 +30,7 @@ async function main() {
       id: "default",
       businessName: "AaruthraaFashion",
       businessEmail: "info@aaruthraafashion.in",
-      whatsappNumber: process.env.WHATSAPP_NUMBER ?? "919876543210",
+      whatsappNumber: process.env.WHATSAPP_NUMBER ?? "917871317044",
       contactNumber: "+91 78713 17044",
       address: "Chennai, Tamil Nadu, India",
       businessHours: "Mon–Sat, 9:00 AM – 6:00 PM IST",

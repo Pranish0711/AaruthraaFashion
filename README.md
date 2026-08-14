@@ -41,7 +41,7 @@ cp .env.example .env
 | `AUTH_SECRET` | Random secret (32+ chars). Generate: `openssl rand -base64 32` |
 | `ADMIN_EMAIL` | Initial admin email (used during seed) |
 | `ADMIN_PASSWORD` | Initial admin password (hashed in DB during seed) |
-| `WHATSAPP_NUMBER` | E.164 without + (e.g. `919876543210`) |
+| `WHATSAPP_NUMBER` | E.164 without + (e.g. `917871317044`) |
 | `CLOUDINARY_*` | Cloudinary credentials for image uploads |
 | `NEXT_PUBLIC_SITE_URL` | Site URL for SEO metadata |
 

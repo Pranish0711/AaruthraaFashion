@@ -40,6 +40,6 @@ export function getWhatsAppNumber() {
   return (
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ??
     process.env.WHATSAPP_NUMBER ??
-    "919876543210"
+    "917871317044"
   );
 }
