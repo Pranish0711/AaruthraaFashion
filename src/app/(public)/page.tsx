@@ -8,19 +8,27 @@ import { FadeIn, SectionHeading } from "@/components/public/motion";
 import { FAQAccordion } from "@/components/public/faq-accordion";
 
 export default async function HomePage() {
-  const [settings, featuredProducts, categories] = await Promise.all([
-    getSiteSettings(),
-    prisma.product.findMany({
-      where: { featured: true, active: true },
-      include: { category: true, images: { orderBy: { displayOrder: "asc" }, take: 1 } },
-      take: 4,
-    }),
-    prisma.category.findMany({
-      where: { parentId: null },
-      orderBy: { displayOrder: "asc" },
-      take: 3,
-    }),
-  ]);
+  const settings = await getSiteSettings();
+
+  let featuredProducts: Awaited<ReturnType<typeof prisma.product.findMany>> = [];
+  let categories: Awaited<ReturnType<typeof prisma.category.findMany>> = [];
+
+  try {
+    [featuredProducts, categories] = await Promise.all([
+      prisma.product.findMany({
+        where: { featured: true, active: true },
+        include: { category: true, images: { orderBy: { displayOrder: "asc" }, take: 1 } },
+        take: 4,
+      }),
+      prisma.category.findMany({
+        where: { parentId: null },
+        orderBy: { displayOrder: "asc" },
+        take: 3,
+      }),
+    ]);
+  } catch (error) {
+    console.error("Failed to load homepage data:", error);
+  }
 
   const faqItems = [
     {
