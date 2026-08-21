@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Oswald } from "next/font/google";
 import { Toaster } from "sonner";
-import { SEO_KEYWORDS, SITE } from "@/lib/seo";
+import { OG_IMAGE, SEO_KEYWORDS, SITE } from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -40,11 +40,14 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     title: "AaruthraaFashion | Wholesale Custom Apparel Erode",
     description: "Bulk custom t-shirts & sportswear from Erode, Tamil Nadu. MOQ 100 pcs.",
+    url: SITE.url,
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "AaruthraaFashion | Wholesale Apparel Erode",
     description: "Custom bulk t-shirts, track pants & team apparel from Erode, TN.",
+    images: [OG_IMAGE.url],
   },
   alternates: {
     canonical: SITE.url,
@@ -52,6 +55,8 @@ export const metadata: Metadata = {
   other: {
     "geo.region": "IN-TN",
     "geo.placename": SITE.city,
+    "geo.position": `${SITE.geo.latitude};${SITE.geo.longitude}`,
+    ICBM: `${SITE.geo.latitude}, ${SITE.geo.longitude}`,
   },
 };
 

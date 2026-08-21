@@ -36,7 +36,7 @@ async function main() {
       contactNumber: "+91 78713 17044",
       address: "Erode, Tamil Nadu, India",
       businessHours: "Mon–Sat, 9:00 AM – 6:00 PM IST",
-      announcementText: "WHOLESALE & BULK ORDERS | CUSTOM APPAREL | MOQ FROM 100 PCS",
+      announcementText: "MAKE YOUR OWN DESIGN | WHOLESALE BULK ORDERS | ERODE, TAMIL NADU | MOQ 100 PCS",
     },
   });
 

@@ -33,7 +33,7 @@ export function CategoryCard({
           alt={title}
           fill
           priority={priority}
-          className="object-cover opacity-50 transition-transform duration-500 group-hover:scale-105"
+          className="object-cover opacity-50 transition-transform duration-300 group-hover:scale-[1.03]"
           sizes="(max-width: 1024px) 100vw, 33vw"
         />
       )}

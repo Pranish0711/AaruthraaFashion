@@ -3,7 +3,8 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
-import { isPlaceholderImage, SITE_IMAGES } from "@/lib/site-images";
+import { resolveProductImage } from "@/lib/site-images";
+import { buildPageMetadata, SITE } from "@/lib/seo";
 
 type ProductCardProps = {
   product: {
@@ -14,14 +15,14 @@ type ProductCardProps = {
     moq: number;
     startingPrice?: number | null;
     customizationAvailable: boolean;
-    category?: { name: string };
+    category?: { name: string; slug?: string };
     images?: { url: string }[];
   };
 };
 
 export function ProductCard({ product }: ProductCardProps) {
   const rawUrl = product.images?.[0]?.url;
-  const imageUrl = rawUrl && !isPlaceholderImage(rawUrl) ? rawUrl : SITE_IMAGES.tShirts;
+  const imageUrl = resolveProductImage(product.slug, product.category?.slug, rawUrl);
 
   return (
     <article className="group flex flex-col border border-border bg-card transition-shadow hover:shadow-lg">
@@ -30,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
           src={imageUrl}
           alt={product.name}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           sizes="(max-width:768px) 100vw, 33vw"
         />
         {product.customizationAvailable && (

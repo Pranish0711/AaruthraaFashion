@@ -8,17 +8,44 @@ import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
 import { ProductMobileBar } from "@/components/public/product-mobile-bar";
 import { buildWhatsAppMessage, buildWhatsAppUrl, getWhatsAppNumber } from "@/lib/whatsapp";
+import { resolveProductImage } from "@/lib/site-images";
+import { SITE } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = await prisma.product.findUnique({ where: { slug } });
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    include: { category: true, images: { orderBy: { displayOrder: "asc" }, take: 1 } },
+  });
   if (!product) return { title: "Product Not Found" };
+
+  const imageUrl = resolveProductImage(product.slug, product.category.slug, product.images[0]?.url);
+  const title = `${product.name} — Wholesale ${product.productType} Erode`;
+  const description = `${product.shortDescription} Bulk orders from MOQ ${product.moq}. Custom apparel from Erode, Tamil Nadu.`;
+  const url = `${SITE.url}/products/${product.slug}`;
+
   return {
-    title: product.name,
-    description: product.shortDescription,
-    keywords: [product.name, product.productType, "wholesale", "bulk apparel", "custom"],
+    title,
+    description,
+    keywords: [product.name, product.productType, "wholesale Erode", "bulk apparel", "custom", "Tamil Nadu"],
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      locale: "en_IN",
+      siteName: SITE.name,
+      images: [{ url: imageUrl, width: 800, height: 1000, alt: product.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+    alternates: { canonical: url },
   };
 }
 
@@ -40,6 +67,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const sizes = product.sizes as string[];
   const customizationOptions = product.customizationOptions as string[];
   const primaryImage = product.images.find((i) => i.isPrimary) ?? product.images[0];
+  const primaryImageUrl = resolveProductImage(product.slug, product.category.slug, primaryImage?.url);
   const whatsappUrl = buildWhatsAppUrl(
     getWhatsAppNumber(),
     buildWhatsAppMessage({ productName: product.name, customizationInterest: true, page: "product" }),
@@ -51,15 +79,26 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="container-wide grid gap-10 lg:grid-cols-2 lg:gap-16">
           <div>
             <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-              {primaryImage && (
-                <Image src={primaryImage.url} alt={product.name} fill className="object-cover" priority sizes="50vw" />
-              )}
+              <Image
+                src={primaryImageUrl}
+                alt={product.name}
+                fill
+                className="object-cover"
+                priority
+                sizes="50vw"
+              />
             </div>
             {product.images.length > 1 && (
               <div className="mt-4 grid grid-cols-4 gap-3">
                 {product.images.map((img) => (
                   <div key={img.id} className="relative aspect-square overflow-hidden bg-muted">
-                    <Image src={img.url} alt="" fill className="object-cover" sizes="100px" />
+                    <Image
+                      src={resolveProductImage(product.slug, product.category.slug, img.url)}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="100px"
+                    />
                   </div>
                 ))}
               </div>
@@ -72,7 +111,7 @@ export default async function ProductDetailPage({ params }: Props) {
             <p className="mt-4 text-muted-foreground">{product.shortDescription}</p>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              {product.customizationAvailable && <Badge variant="accent">Available For Customization</Badge>}
+              {product.customizationAvailable && <Badge variant="accent">Make Your Own Design</Badge>}
               <Badge variant="secondary">MOQ {product.moq}</Badge>
               {product.startingPrice && <Badge variant="secondary">From {formatPrice(product.startingPrice)}</Badge>}
             </div>
@@ -116,7 +155,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
             <div className="mt-10 hidden flex-wrap gap-4 md:flex">
               <Button asChild variant="accent" size="lg">
-                <Link href={`/customize?product=${product.slug}`}>Customize This Product</Link>
+                <Link href={`/customize?product=${product.slug}`}>Make Your Own Design</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link href="/bulk-quote">Get Bulk Quote</Link>
@@ -129,13 +168,14 @@ export default async function ProductDetailPage({ params }: Props) {
         </div>
 
         <section className="container-wide mt-20 border border-border bg-muted/20 p-8 md:p-12">
-          <h2 className="font-display text-3xl font-bold uppercase md:text-4xl">Want This In Your Own Style?</h2>
+          <h2 className="font-display text-3xl font-bold uppercase md:text-4xl">Make Your Own Design</h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
             Customize the fabric, color, branding, logo, print and quantity based on your requirements.
+            Our Erode team will help bring your design to life.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Button asChild variant="accent" size="lg">
-              <Link href={`/customize?product=${product.slug}`}>Customize This Product</Link>
+              <Link href={`/customize?product=${product.slug}`}>Start Custom Design</Link>
             </Button>
             <Button asChild variant="default" size="lg">
               <Link href="/bulk-quote">Get Bulk Quote</Link>

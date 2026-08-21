@@ -5,15 +5,15 @@ import { SectionHeading } from "@/components/public/motion";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import { SEO_KEYWORDS, SITE } from "@/lib/seo";
+import { buildPageMetadata, SITE } from "@/lib/seo";
 
 export const revalidate = 120;
 
-export const metadata: Metadata = {
-  title: "Wholesale Products — T-Shirts, Track Pants & Shorts",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Wholesale Products — T-Shirts, Track Pants & Shorts Erode",
   description: `Browse wholesale track pants, shorts and custom t-shirts from ${SITE.location}. Bulk customization from MOQ 100 pcs.`,
-  keywords: [...SEO_KEYWORDS],
-};
+  path: "/products",
+});
 
 export default async function ProductsPage({
   searchParams,

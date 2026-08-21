@@ -22,7 +22,7 @@ export async function getSiteSettings() {
       instagramUrl: null,
       facebookUrl: null,
       logoUrl: null,
-      announcementText: "WHOLESALE & BULK ORDERS | CUSTOM APPAREL | MOQ FROM 100 PCS",
+      announcementText: "MAKE YOUR OWN DESIGN | WHOLESALE BULK ORDERS | ERODE, TAMIL NADU | MOQ 100 PCS",
       faqSamplesAnswer: "Yes, sample units can be arranged for bulk orders subject to product type and customization requirements.",
       updatedAt: new Date(),
     };

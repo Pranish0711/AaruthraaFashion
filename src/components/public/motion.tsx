@@ -1,13 +1,24 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { ScrollReveal } from "@/components/public/scroll-reveal";
 
 export function FadeIn({
   children,
   className,
+  delay,
+  immediate,
 }: {
   children: React.ReactNode;
   className?: string;
+  delay?: number;
+  immediate?: boolean;
 }) {
-  return <div className={cn("animate-fade-up", className)}>{children}</div>;
+  return (
+    <ScrollReveal className={className} delay={delay} immediate={immediate}>
+      {children}
+    </ScrollReveal>
+  );
 }
 
 export function SectionHeading({
@@ -20,7 +31,7 @@ export function SectionHeading({
   align?: "left" | "center";
 }) {
   return (
-    <div className={cn("mb-12 animate-fade-up", align === "center" && "text-center")}>
+    <ScrollReveal className={cn("mb-12", align === "center" && "text-center")}>
       <h2 className="font-display text-4xl font-bold uppercase tracking-tight md:text-5xl lg:text-6xl">
         {title}
       </h2>
@@ -29,6 +40,6 @@ export function SectionHeading({
           {subtitle}
         </p>
       )}
-    </div>
+    </ScrollReveal>
   );
 }
