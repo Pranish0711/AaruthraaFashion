@@ -15,6 +15,11 @@ export const SITE = {
   },
 } as const;
 
+/** Avoid circular import — OG image URL defined inline */
+const SITE_IMAGES_OG =
+  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&h=630&q=80&auto=format&fit=crop";
+
+
 export const OG_IMAGE = {
   url: SITE_IMAGES_OG,
   width: 1200,
@@ -22,9 +27,6 @@ export const OG_IMAGE = {
   alt: "AaruthraaFashion — Wholesale & Custom Apparel in Erode, Tamil Nadu",
 } as const;
 
-/** Avoid circular import — OG image URL defined inline */
-const SITE_IMAGES_OG =
-  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&h=630&q=80&auto=format&fit=crop";
 
 export const SEO_KEYWORDS = [
   "wholesale t-shirts Erode",
